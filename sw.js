@@ -1,5 +1,6 @@
 // Офлайн-режим. При изменении файлов увеличьте номер версии.
-const VERSION = 'rashody-v2';
+// Расходы хранятся отдельно (localStorage) — обновление их не трогает.
+const VERSION = 'rashody-v3';
 const SHELL = [
   './',
   './index.html',
@@ -22,6 +23,8 @@ self.addEventListener('activate', e => {
   );
 });
 
+const offline = () => new Response('Нет соединения', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -29,21 +32,37 @@ self.addEventListener('fetch', e => {
   const isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
   if (url.origin !== location.origin && !isFont) return;
 
-  // Страница: сначала из кэша (мгновенно и без интернета), в фоне обновляем
-  const key = req.mode === 'navigate' ? './index.html' : req;
+  // Страница: есть интернет — берём свежую (так обновления приходят сразу),
+  // нет интернета или он медленный (>3 с) — открываем сохранённую.
+  if (req.mode === 'navigate') {
+    e.respondWith((async () => {
+      const cache = await caches.open(VERSION);
+      const net = fetch(url.href.split('#')[0], { cache: 'no-cache', credentials: 'same-origin' })
+        .then(res => { if (res.ok) cache.put('./index.html', res.clone()); return res; });
+      try {
+        const res = await Promise.race([net, new Promise((_, rej) => setTimeout(() => rej(0), 3000))]);
+        if (res.ok) return res;
+        throw 0;
+      } catch (_) {
+        e.waitUntil(net.catch(() => {}));
+        return (await cache.match('./index.html')) || net.catch(offline);
+      }
+    })());
+    return;
+  }
 
+  // Остальное (иконки, шрифты): сразу из кэша, в фоне обновляем
   e.respondWith(
     caches.open(VERSION).then(async cache => {
-      const cached = await cache.match(key, { ignoreSearch: req.mode === 'navigate' });
+      const cached = await cache.match(req);
       const network = fetch(req)
         .then(res => {
-          if (res && (res.ok || res.type === 'opaque')) cache.put(key, res.clone());
+          if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone());
           return res;
         })
         .catch(() => null);
       if (cached) { e.waitUntil(network); return cached; }
-      const res = await network;
-      return res || new Response('Нет соединения', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      return (await network) || offline();
     })
   );
 });

@@ -133,26 +133,42 @@ svg{display:block;flex:none}
 /* ---------- sheets ---------- */
 .backdrop{position:fixed;inset:0;background:rgba(31,30,28,.32);opacity:0;pointer-events:none;transition:opacity .3s;z-index:30;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .backdrop.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;max-height:94dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--card);border-radius:28px 28px 0 0;z-index:40;padding:0 16px calc(16px + var(--safe-b));transform:translateY(105%);transition:transform .42s cubic-bezier(.2,.9,.25,1);visibility:hidden}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px - var(--safe-t));overflow-y:auto;display:flex;flex-direction:column;overscroll-behavior:contain;background:var(--card);border-radius:28px 28px 0 0;z-index:40;padding:0 16px calc(16px + var(--safe-b));transform:translateY(105%);transition:transform .42s cubic-bezier(.2,.9,.25,1);visibility:hidden}
 .sheet.open{transform:translateY(0);visibility:visible}
+.sheet>*{flex-shrink:0}
+.sheet.add{padding-left:12px;padding-right:12px}
+.sheet-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 2px}
+.sheet-top .icon-btn{box-shadow:none;background:var(--soft);width:38px;height:38px}
+.sheet-top .chips{flex-wrap:nowrap;gap:6px}
+.sheet-top .chip{height:38px;padding:0 13px;font-size:14px}
 .sheet.dragging{transition:none}
-.grab{display:flex;justify-content:center;padding:10px 0 4px;cursor:grab;touch-action:none;position:sticky;top:0;background:var(--card);z-index:2}
+.grab{display:flex;justify-content:center;padding:9px 0 7px;cursor:grab;touch-action:none;position:sticky;top:0;background:var(--card);z-index:2}
 .grab span{width:42px;height:5px;border-radius:9px;background:var(--line)}
 .sheet-head{display:flex;justify-content:space-between;align-items:center;margin:2px 0 6px}
 .sheet-head h2{font-family:var(--display);font-weight:600;font-size:24px}
 .sheet-head .icon-btn{box-shadow:none;background:var(--soft);width:40px;height:40px}
 
-.amount{display:flex;justify-content:center;align-items:baseline;gap:6px;font-weight:800;font-size:clamp(44px,13vw,56px);letter-spacing:-.03em;padding:0 0 6px;font-variant-numeric:tabular-nums;min-height:66px}
+.amount{display:flex;justify-content:center;align-items:center;gap:6px;font-weight:800;font-size:clamp(40px,12vw,52px);letter-spacing:-.03em;line-height:1;padding:6px 0 8px;font-variant-numeric:tabular-nums;min-height:66px}
+.amount .cur{align-self:flex-end;margin-bottom:.12em}
 .amount .cur{font-size:.55em;color:var(--muted);font-weight:600;letter-spacing:0}
 .amount.zero #amountVal{color:#C9C3B8}
 .amount.bump #amountVal{animation:bump .18s var(--ease)}
 .amount.shake{animation:shake .4s}
 
-.catgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px 4px;margin-bottom:10px}
-.cat{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 0;border-radius:14px;transition:transform .2s var(--spring)}
+.catgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px 0;margin-bottom:4px}
+.cat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:3px 0;border-radius:14px;min-width:0;transition:transform .2s var(--spring)}
 .cat:active{transform:scale(.9)}
-.cat .ico{width:50px;height:50px;border-radius:16px;transition:background .25s,color .25s,transform .35s var(--spring),box-shadow .25s}
-.cat small{font-size:12px;font-weight:600;color:var(--muted);line-height:1.15;text-align:center;transition:color .2s}
+.cat .ico{width:46px;height:46px;border-radius:15px;transition:background .25s,color .25s,transform .35s var(--spring),box-shadow .25s}
+.cat small{font-size:11px;font-weight:600;color:var(--muted);line-height:1.2;white-space:nowrap;text-align:center;transition:color .2s}
+@media (max-width:370px){.cat small{font-size:10px}.cat .ico{width:42px;height:42px}}
+@media (max-width:340px){.cat small{font-size:9.5px;letter-spacing:-.02em}.sheet.add{padding-left:8px;padding-right:8px}}
+@media (max-height:620px){
+  .amount{min-height:50px;font-size:38px;padding:2px 0 4px}
+  .cat .ico{width:40px;height:40px;border-radius:13px}
+  .name-field{height:48px;margin:4px 0 6px}.name-field input{font-size:19px}
+  .keypad{min-height:150px;gap:6px}
+  .actions{padding-top:8px}.actions .btn{height:50px}.actions .btn.danger{width:50px}
+}
 .cat[aria-pressed=true] .ico{background:var(--c);color:#fff;transform:scale(1.06);box-shadow:0 6px 16px var(--sh)}
 .cat[aria-pressed=true] small{color:var(--ink);font-weight:800}
 
@@ -164,17 +180,19 @@ svg{display:block;flex:none}
 .note{width:100%;height:48px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:#fff;padding:0 14px;font-size:16px;margin:10px 0;transition:border-color .2s}
 .note:focus{outline:none;border-color:var(--ink)}
 .note::placeholder{color:#B4AEA3}
-.name-field{display:block;margin:10px 0 8px;border:2px solid var(--line);border-radius:18px;padding:9px 16px 10px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:text}
+.name-field{display:flex;align-items:center;height:56px;margin:6px 0 8px;border:2px solid var(--line);border-radius:18px;padding:0 16px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:text}
 .name-field:focus-within{outline:none;border-color:var(--ink);box-shadow:0 0 0 4px rgba(31,30,28,.06)}
-.name-field span{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-.name-field input{width:100%;border:0;outline:0;background:none;font-size:22px;font-weight:700;padding:2px 0;letter-spacing:-.01em}
-.name-field input::placeholder{color:#C4BEB3;font-weight:600}
+.name-field input{width:100%;border:0;outline:0;background:none;font-size:21px;font-weight:700;letter-spacing:-.01em}
+.name-field input::placeholder{color:#B9B2A6;font-weight:600}
 
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:4px 0 4px}
-.keypad button{height:52px;border-radius:16px;background:var(--soft);font-size:24px;font-weight:700;display:grid;place-items:center;transition:transform .15s var(--spring),background .15s}
+/* клавиатура сжимается, если экран низкий — всё окно помещается без прокрутки */
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:7px;margin:0;flex:0 1 auto;height:245px;min-height:165px}
+.keypad button{min-height:0;border-radius:16px;background:var(--soft);font-size:24px;font-weight:700;display:grid;place-items:center;transition:transform .15s var(--spring),background .15s}
 .keypad button:active{transform:scale(.92);background:var(--line)}
 
-.actions{display:flex;gap:10px;position:sticky;bottom:calc(-16px - var(--safe-b));background:var(--card);padding:8px 0 calc(16px + var(--safe-b));margin-bottom:calc(-16px - var(--safe-b));z-index:2}
+.actions{display:flex;gap:10px;padding-top:10px}
+.actions .btn{height:56px}
+.actions .btn.danger{width:56px;padding:0}
 .btn{height:58px;border-radius:18px;font-weight:800;font-size:17px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 20px;transition:transform .2s var(--spring),opacity .2s,background .2s}
 .btn:active{transform:scale(.96)}
 .btn.primary{flex:1;background:var(--ink);color:#fff}
@@ -253,17 +271,19 @@ svg{display:block;flex:none}
 <div class="backdrop" id="backdrop"></div>
 
 <!-- Add / edit sheet -->
-<div class="sheet" id="addSheet" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+<div class="sheet add" id="addSheet" role="dialog" aria-modal="true" aria-label="Расход">
   <div class="grab"><span></span></div>
-  <div class="sheet-head"><h2 id="addTitle">Новый расход</h2><button class="icon-btn" data-close aria-label="Закрыть"></button></div>
+  <div class="sheet-top">
+    <div class="chips" id="dateChips">
+      <button class="chip" data-d="0" aria-pressed="true">Сегодня</button>
+      <button class="chip" data-d="-1" aria-pressed="false">Вчера</button>
+      <label class="chip" id="pickChip" aria-pressed="false"><span id="pickIcon"></span><span id="pickText">Дата</span><input type="date" id="dateInput" aria-label="Выбрать дату"></label>
+    </div>
+    <button class="icon-btn" data-close aria-label="Закрыть"></button>
+  </div>
   <div class="amount zero" id="amount"><span id="amountVal">0</span><span class="cur" id="amountCur">₽</span></div>
   <div class="catgrid" id="catGrid"></div>
-  <div class="chips" id="dateChips">
-    <button class="chip" data-d="0" aria-pressed="true">Сегодня</button>
-    <button class="chip" data-d="-1" aria-pressed="false">Вчера</button>
-    <label class="chip" id="pickChip" aria-pressed="false"><span id="pickIcon"></span><span id="pickText">Другой день</span><input type="date" id="dateInput" aria-label="Выбрать дату"></label>
-  </div>
-  <label class="name-field"><span>Название расхода</span><input id="note" placeholder="Например: хлеб и молоко" maxlength="60" enterkeyhint="done" autocomplete="off" autocapitalize="sentences"></label>
+  <label class="name-field"><input id="note" placeholder="Название расхода" aria-label="Название расхода" maxlength="60" enterkeyhint="done" autocomplete="off" autocapitalize="sentences"></label>
   <div class="keypad" id="keypad"></div>
   <div class="actions">
     <button class="btn danger" id="delBtn" hidden></button>
@@ -306,6 +326,9 @@ const ICONS = {
   phone:'<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
   gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
   sparkles:'<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/>',
+  ticket:'<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>',
+  cigarette:'<path d="M17 12H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h14"/><path d="M18 8c0-2.5-2-2.5-2-5"/><path d="M21 16a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M22 8c0-2.5-2-2.5-2-5"/><path d="M7 12v4"/>',
+  book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
   dots:'<circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/><circle cx="5" cy="12" r="1.2"/>',
   plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',
   x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
@@ -325,18 +348,24 @@ const ICONS = {
 const svg = (n, s = 22, w = 2) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 
 /* ---------- categories ---------- */
+// Порядок = порядок в окне добавления (6 в ряд). hidden — старые категории:
+// их нельзя выбрать, но ранее записанные расходы показываются правильно.
 const CATS = [
-  { id:'food',   name:'Продукты',  color:'#16A34A', icon:'cart' },
-  { id:'cafe',   name:'Кафе',      color:'#EA580C', icon:'coffee' },
-  { id:'trans',  name:'Транспорт', color:'#4F46E5', icon:'bus' },
-  { id:'home',   name:'Дом, ЖКХ',  color:'#0D9488', icon:'home' },
-  { id:'health', name:'Здоровье',  color:'#DC2626', icon:'pill' },
-  { id:'clothes',name:'Одежда',    color:'#9333EA', icon:'shirt' },
-  { id:'phone',  name:'Связь',     color:'#0284C7', icon:'phone' },
-  { id:'gifts',  name:'Подарки',   color:'#DB2777', icon:'gift' },
-  { id:'beauty', name:'Красота',   color:'#CA8A04', icon:'sparkles' },
-  { id:'other',  name:'Другое',    color:'#64748B', icon:'dots' }
+  { id:'food',   name:'Продукты',    color:'#16A34A', icon:'cart' },
+  { id:'cafe',   name:'Кафе',        color:'#EA580C', icon:'coffee' },
+  { id:'trans',  name:'Транспорт',   color:'#4F46E5', icon:'bus' },
+  { id:'clothes',name:'Одежда',      color:'#9333EA', icon:'shirt' },
+  { id:'health', name:'Здоровье',    color:'#DC2626', icon:'pill' },
+  { id:'beauty', name:'Красота',     color:'#CA8A04', icon:'sparkles' },
+  { id:'home',   name:'Дом, ЖКХ',    color:'#0D9488', icon:'home' },
+  { id:'smoke',  name:'Сигареты',    color:'#7C4A1E', icon:'cigarette' },
+  { id:'study',  name:'Учёба',       color:'#0284C7', icon:'book' },
+  { id:'fun',    name:'Развлечения', color:'#DB2777', icon:'ticket' },
+  { id:'other',  name:'Другое',      color:'#64748B', icon:'dots' },
+  { id:'phone',  name:'Связь',       color:'#0E7490', icon:'phone', hidden:true },
+  { id:'gifts',  name:'Подарки',     color:'#BE185D', icon:'gift',  hidden:true }
 ];
+const PICK_CATS = CATS.filter(c => !c.hidden);
 const tint = (hex, a) => { const n = parseInt(hex.slice(1), 16); const m = c => Math.round(255 - (255 - c) * a); return `rgb(${m(n >> 16)},${m((n >> 8) & 255)},${m(n & 255)})`; };
 CATS.forEach(c => { c.tint = tint(c.color, .13); c.shadow = c.color + '55'; });
 const catById = id => CATS.find(c => c.id === id) || CATS[CATS.length - 1];
@@ -679,7 +708,7 @@ $$('.sheet').forEach(sh => {
 const ed = { id: null, str: '', cat: 'food', date: sod(new Date()), keepTime: null };
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', 'del'];
 $('#keypad').innerHTML = KEYS.map(k => `<button data-k="${k}" aria-label="${k === 'del' ? 'Стереть' : k}">${k === 'del' ? svg('backspace', 26, 2) : k}</button>`).join('');
-$('#catGrid').innerHTML = CATS.map(c => `<button class="cat" data-cat="${c.id}" style="${icoStyle(c)}" aria-pressed="false"><span class="ico">${svg(c.icon, 24)}</span><small>${c.name}</small></button>`).join('');
+$('#catGrid').innerHTML = PICK_CATS.map(c => `<button class="cat" data-cat="${c.id}" style="${icoStyle(c)}" aria-pressed="false"><span class="ico">${svg(c.icon, 24)}</span><small>${c.name}</small></button>`).join('');
 $('#pickIcon').innerHTML = svg('calendar', 17, 2.2);
 $('#delBtn').innerHTML = svg('trash', 20, 2.2);
 $('#delBtn').setAttribute('aria-label', 'Удалить');
@@ -702,7 +731,9 @@ function paintEditor(bump) {
   $$('#dateChips .chip[data-d]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.d === diff)));
   const other = diff !== 0 && diff !== -1;
   $('#pickChip').setAttribute('aria-pressed', String(other));
-  $('#pickText').textContent = other ? dayName(ed.date) : 'Другой день';
+  $('#pickText').textContent = other
+    ? ed.date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }).replace('.', '')
+    : 'Дата';
   const di = $('#dateInput'); di.max = ymd(new Date()); di.value = ymd(ed.date);
 }
 function press(k) {
@@ -735,9 +766,9 @@ $('#pickChip').addEventListener('click', e => {
 $('#note').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
 
 function openAdder() {
-  Object.assign(ed, { id: null, str: '', cat: db.lastCat || 'food', date: sod(new Date()), keepTime: null });
+  const last = PICK_CATS.some(c => c.id === db.lastCat) ? db.lastCat : 'food';
+  Object.assign(ed, { id: null, str: '', cat: last, date: sod(new Date()), keepTime: null });
   $('#note').value = '';
-  $('#addTitle').textContent = 'Новый расход';
   $('#saveBtn').textContent = 'Добавить';
   $('#delBtn').hidden = true;
   paintEditor();
@@ -748,7 +779,6 @@ function openEditor(id) {
   const d = new Date(e.ts);
   Object.assign(ed, { id, str: String(e.amount).replace('.', ','), cat: e.cat, date: sod(d), keepTime: d });
   $('#note').value = e.note || '';
-  $('#addTitle').textContent = 'Изменить расход';
   $('#saveBtn').textContent = 'Сохранить';
   $('#delBtn').hidden = false;
   paintEditor();
@@ -918,6 +948,15 @@ replay($('#cats'), 'stagger'); replay($('#list'), 'stagger');
 if (document.fonts) document.fonts.ready.then(moveSegPill);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  // Вышла новая версия — тихо перезагрузиться (данные не теряются), но не посреди ввода
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloadPending = false;
+  const tryReload = () => { if (reloadPending && !openSheetEl) location.reload(); };
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloadPending) return;
+    reloadPending = true; tryReload();
+  });
+  $('#backdrop').addEventListener('transitionend', tryReload);
 }
 </script>
 </body>
